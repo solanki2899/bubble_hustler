@@ -4,9 +4,9 @@ body {
 }
 .game-canvas {
   font-family: 'Exo', sans-serif;
-  border: double;
+  border: solid;
   border-color: rgb(96, 96, 96);
-  border-width: thick;
+  border-bottom-width: thin;
   margin: auto;
   display: block;
   cursor:none;

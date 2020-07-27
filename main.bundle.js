@@ -47,27 +47,36 @@
 	const Game = __webpack_require__(1);
 	var canvas = document.getElementById('game');
 	var context = canvas.getContext('2d');
+    canvas.width = document.body.clientWidth; //document.width is obsolete
+    canvas.height = document.body.clientHeight; //document.height is obsolete
+    canvasW = canvas.width;
+    canvasH = canvas.height;
+    var flag_for_spacebar=1;
 
 	function defaultScreen() {
 	  context.clearRect(0, 0, canvas.width, canvas.height);
 	  context.font = '55px cursive';
 	  context.fillStyle = '#fff';
-	  context.fillText("Bubble Hustler", 250, 175);
+	  context.fillText("Bubble Hustler", 500, 175);
 	  // context.fillText("_______", 290, 176);
 	  context.font = '20px Exo';
-	  context.fillText("Directions:", 175, 275);
-	  context.fillText("- Avoid red enemy dots and the grey border", 175, 325);
-	  context.fillText("- Collide with green dots for +1 life", 175, 360);
-	  context.fillText("- Place your cursor so that it is hidden inside the boarder", 175, 395);
-	  context.fillText("- Use your trackpad or mouse to move the blue player ball", 175, 430);
-	  context.fillText("- Click within the browser window so that it is your active page", 175, 465);
-	  context.fillText("- Slap the SPACEBAR to begin.", 175, 500);
+	  context.fillText("Directions:", 450, 275);
+	  context.fillText("- Avoid red enemy dots and the grey border", 450, 325);
+	  context.fillText("- Collide with green dots for +1 life", 450, 360);
+	  context.fillText("- Place your cursor so that it is hidden inside the boarder", 450, 395);
+	  context.fillText("- Use your trackpad or mouse to move the blue player ball", 450, 430);
+	  context.fillText("- Click within the browser window so that it is your active page", 450, 465);
+	  context.fillText("- Slap the SPACEBAR to begin.", 450, 500);
 	}
 	defaultScreen();
 
 	document.onkeydown = function (e) {
 	  if (e.code === "Space") {
-	    new Game(canvas, context);
+          if(flag_for_spacebar==1)
+          {
+              new Game(canvas, context);
+              flag_for_spacebar=0;
+          }
 	  }
 	};
 
@@ -90,10 +99,10 @@
 
 	  function createGameElements(number, collection, Object) {
 	    for (var i = 0; i < number; i++) {
-	      collection.push(new Object(getRandomInput(600, 799), getRandomInput(0, 200), getRandomInput(3, 10), Math.random() * (-3), Math.random() * (3), context, canvas));
+	      collection.push(new Object(getRandomInput(1000, 1300), getRandomInput(0,100), getRandomInput(3, 10), Math.random() * (-3), Math.random() * (3), context, canvas));
 	    }
 	  }
-	  createGameElements(70, enemies, Enemy);
+	  createGameElements(100, enemies, Enemy);
 	  createGameElements(1, powerups, Powerup);
 
 	  function collisionDetectionEnemy(player, enemies) {
@@ -149,11 +158,11 @@
 	  }
 
 	  function collisionDetectionCanvas() {
-	    if (player.x <= 0 || player.x >= 800) {
+	    if (player.x <= 0 || player.x >= canvas.width) {
 	      contextStyle("red");
 	      gameOver(player);
 	      player.currentLifeCount.length = 0;
-	    } else if (player.y <= 0 || player.y >= 600) {
+	    } else if (player.y <= 0 || player.y >= canvas.height) {
 	      contextStyle("red");
 	      gameOver(player);
 	      player.currentLifeCount.length = 0;
@@ -168,17 +177,18 @@
 
 	  function gameOver(player) {
 	    saveScore();
+          player.currentLifeCount.length=0;
 	    context.clearRect(0, 0, canvas.width, canvas.height);
 	    context.font = '50px Exo';
 	    context.fillStyle = 'red';
-	    context.fillText("GAME OVER !", 250, 125);
+	    context.fillText("GAME OVER !", 510, 150);
           context.font = '25px Exo';
 	    context.fillStyle = '#ddd';
-	    context.fillText("YOUR FINAL SCORE", 290, 200);
-	    context.fillText(player.score, 390, 250);
-	    context.fillText("HIGH SCORE", 330, 320);
-	    context.fillText(localStorage.highScore, 380, 375);
-	    context.fillText("Slap the spacebar to replay.", 250, 450);
+	    context.fillText("YOUR FINAL SCORE", 540, 250);
+	    context.fillText(player.score, 640, 300);
+	    context.fillText("HIGH SCORE", 585, 370);
+	    context.fillText(localStorage.highScore, 625, 425);
+	    context.fillText("Slap the spacebar to replay.", 510, 530);
 	    document.onkeydown = function (e) {
 	      if (e.code === "Space") {
 	        document.location.reload();
@@ -236,7 +246,7 @@
 	  function drawLevel(context, level) {
 	    context.font = '15px Exo';
 	    context.fillStyle = 'white';
-	    context.fillText("Level: " + level, 675, 50);
+	    context.fillText("Level: " + level, 1175, 50);
 	  }
 
 	  function drawAndUpdateEnemies(enemies) {
@@ -300,20 +310,13 @@
 	  this.x = this.x + this.xspeed;
 	  this.y = this.y + this.yspeed;
 	  if (this.x < 0) {
-	    this.x = 800;
-	    this.xspeed = this.xspeed;
-	  }
-	  if (this.x > this.canvas.width) {
-          this.x=0;
-	    this.xspeed = this.xspeed;
-	  }
-	  if (this.y < 0) {
-          this.y=800;
-	    this.yspeed = this.yspeed;
+	    this.x = this.canvas.width-1;
+        this.y=getRandomInput(0,this.canvas.height);
 	  }
 	  if (this.y > this.canvas.height) {
         this.y = 0;
-        this.yspeed = this.yspeed;
+        this.x=getRandomInput(0,this.canvas.width);
+          
 	  }
 	  return this;
 	};
@@ -344,8 +347,8 @@
 	Player.prototype.update = function () {
 	  var player = this;
 	  document.addEventListener("mousemove", function (e) {
-	    player.x = e.clientX - 240;
-	    player.y = e.clientY - 10;
+	    player.x = e.clientX;
+	    player.y = e.clientY;
 	  });
 	  if (this.currentLifeCount.length > 0) {
 	    this.score++;
@@ -370,7 +373,7 @@
 	Player.prototype.showLives = function () {
 	  this.context.font = '20px Exo';
 	  this.context.fillStyle = 'white';
-	  this.context.fillText("Lives: " + this.currentLifeCount.length, 340, 50);
+	  this.context.fillText("Lives: " + this.currentLifeCount.length, 575, 50);
 	};
 
 	module.exports = Player;
@@ -389,6 +392,11 @@
 	  this.canvas = canvas;
 	  this.color = "green";
 	}
+    
+    function getRandomInput(min, max) {
+	    return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
 
 	Powerup.prototype.draw = function () {
 	  this.context.beginPath();
@@ -402,18 +410,13 @@
 	  this.x = this.x + this.xspeed;
 	  this.y = this.y + this.yspeed;
 	  if (this.x < 0) {
-	    this.x = 800;
-	    this.xspeed = -this.xspeed;
-	  }
-	  if (this.x > this.canvas.width) {
-	    this.xspeed = -this.xspeed;
-	  }
-	  if (this.y < 0) {
-	    this.yspeed = -this.yspeed;
+	    this.x = this.canvas.width;
+        this.y=getRandomInput(0,this.canvas.height);
 	  }
 	  if (this.y > this.canvas.height) {
-	    this.y = 0;
-	    this.yspeed = -this.yspeed;
+        this.y = 0;
+        this.x=getRandomInput(0,this.canvas.width);
+          
 	  }
 	  return this;
 	};
